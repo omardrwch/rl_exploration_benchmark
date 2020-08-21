@@ -6,3 +6,5 @@ gym
 numba
 seaborn
 pytest
+PyOpenGL
+PyOpenGL_accelerate
