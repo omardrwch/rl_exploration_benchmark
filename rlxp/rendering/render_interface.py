@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class RenderInterface2D:
+class RenderInterface2D(ABC):
     def __init__(self):
         self._rendering_enabled           = False   
         self._rendering_type              = "2d"
@@ -41,5 +41,5 @@ class RenderInterface2D:
         self._state_history_for_rendering = []
     
     def set_clipping_area(self, area):
-        self._clipping_area = are
+        self._clipping_area = area
 

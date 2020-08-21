@@ -80,7 +80,7 @@ class Render2D:
         # Display objects
         if len(self.data) > 0:
             idx = self.time_count % len(self.data)
-            for shape in data[idx].shapes:
+            for shape in self.data[idx].shapes:
                 self.draw_geometric2d(shape)
 
         self.time_count += 1
@@ -141,6 +141,7 @@ class Render2D:
         # First timer call imediately
         glutTimerFunc(0, self.timer, 0)
         # Enter the event-processing loop
+        self.initGL()
         glutMainLoop()
 
 
@@ -154,9 +155,6 @@ if __name__=='__main__':
     shape.set_color((1.0, 0.0, 0.0))
     background.add_shape(shape)
 
-
     render = Render2D()
     render.set_background(background)
-
-
     render.run_graphics()
