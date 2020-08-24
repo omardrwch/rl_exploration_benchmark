@@ -1,9 +1,9 @@
 import numpy as np
-import gym
+import rlxp.interface as interface
 from gym import spaces
 
 
-class FiniteMDP(gym.Env):
+class FiniteMDP(interface.Env):
     """
     Base class for a finite MDP.
 
@@ -16,8 +16,8 @@ class FiniteMDP(gym.Env):
     Attributes:
         random   (np.random.RandomState) : random number generator
     """
-    def __init__(self, R, P, seed_val=42):
-        super().__init__()
+    def __init__(self, R, P, seed_val=-1):
+        super().__init__(seed_val)
         S, A = R.shape
 
         self.R = R
@@ -27,7 +27,6 @@ class FiniteMDP(gym.Env):
         self.action_space      = spaces.Discrete(A)
 
         self.state = None
-        self.random = np.random.RandomState(seed_val)
 
         self._states  = np.arange(S)
         self._actions = np.arange(A)
@@ -38,12 +37,6 @@ class FiniteMDP(gym.Env):
     def reset(self, state=0):
         """
         Reset the environment to a default state or to a given state.
-
-        Args:
-            state(int)
-
-        Returns:
-            state (object)
         """
         self.state = state
         return self.state
@@ -62,12 +55,6 @@ class FiniteMDP(gym.Env):
         S2, A2, S3 = self.P.shape 
         assert S1 == S2 == S3 
         assert A1 == A2 
-
-    def seed(self, seed=42):
-        """
-        Reset random number generator
-        """
-        self.random = np.random.RandomState(seed)
 
     def sample_transition(self, s, a):
         """

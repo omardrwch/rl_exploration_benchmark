@@ -72,6 +72,7 @@ class Render2D:
         """
         # Set background color (clear background)
         glClearColor(self.background_color[0], self.background_color[1], self.background_color[2], 1.0)
+        glClear(GL_COLOR_BUFFER_BIT)
 
         # Display background
         for shape in self.background.shapes:
@@ -158,3 +159,4 @@ if __name__=='__main__':
     render = Render2D()
     render.set_background(background)
     render.run_graphics()
+    # render.run_graphics()
