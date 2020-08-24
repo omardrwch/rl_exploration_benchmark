@@ -1,7 +1,12 @@
 from rlxp.rendering.scene import GeometricPrimitive, Scene 
 
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
+import pygame as pg
+from pygame.locals import *
+
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from OpenGL.GLU import *
 
 
@@ -58,13 +63,6 @@ class Render2D:
         glLoadIdentity()
         gluOrtho2D(self.clipping_area[0], self.clipping_area[1], 
                    self.clipping_area[2], self.clipping_area[3])
-    
-    def timer(self, value):
-        """
-        Timer, to call display() periodically (period = refresh_interval)
-        """
-        glutPostRedisplay()
-        glutTimerFunc(self.refresh_interval, self.timer, 0)
     
     def display(self):
         """
@@ -125,25 +123,21 @@ class Render2D:
 
 
     def run_graphics(self):
-        # Initialize GLUT
-        glutInit()
-        glutInitDisplayMode(GLUT_RGBA)
-        #  Continue execution after window is closed
-        glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,
-                  GLUT_ACTION_GLUTMAINLOOP_RETURNS)
-        # Set the window's initial width & height
-        glutInitWindowSize(self.window_width, self.window_height)
-        # Position the window's initial top-left corner
-        glutInitWindowPosition(50, 50)
-        # Create window
-        glutCreateWindow(self.window_name)
-        # Register display callback handler for window re-paint
-        glutDisplayFunc(self.display)
-        # First timer call imediately
-        glutTimerFunc(0, self.timer, 0)
-        # Enter the event-processing loop
+        pg.init() 
+        display = (self.window_width, self.window_height)
+        pg.display.set_mode(display, DOUBLEBUF|OPENGL)
+        pg.display.set_caption(self.window_name)
         self.initGL()
-        glutMainLoop()
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    return
+            #
+            self.display()
+            #
+            pg.display.flip()
+            pg.time.wait(self.refresh_interval)
 
 
 if __name__=='__main__':
@@ -159,4 +153,4 @@ if __name__=='__main__':
     render = Render2D()
     render.set_background(background)
     render.run_graphics()
-    # render.run_graphics()
+    render.run_graphics()
