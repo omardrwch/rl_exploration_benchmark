@@ -8,3 +8,4 @@ seaborn
 pytest
 PyOpenGL
 PyOpenGL_accelerate
+pygame
