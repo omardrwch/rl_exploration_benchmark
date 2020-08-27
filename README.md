@@ -1,2 +1,5 @@
-# rl_exploration_benchmark
-Simple environments to benchmark exploration in reinforcement learning algorithms
+# Exploration benchmark
+
+A few simple environments to benchmark exploration in reinforcement learning algorithms.
+
+
