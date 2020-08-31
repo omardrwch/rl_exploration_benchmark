@@ -1,4 +1,4 @@
-from rlxp.env  import Chain
+from rlxp.envs import Chain
 from rlxp.rendering import render_env2d
 
 env = Chain(10, 0.1)

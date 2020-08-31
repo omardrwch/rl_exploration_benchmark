@@ -1,4 +1,4 @@
-from rlxp.env import SquareWorld 
+from rlxp.envs import SquareWorld 
 from rlxp.wrappers import DiscretizeStateWrapper
 from rlxp.rendering import render_env2d
 

@@ -1,7 +1,7 @@
 import pytest
 import numpy as np 
 from rlxp.interface import FiniteMDP 
-from rlxp.env  import Chain, SquareWorld, GridWorld, MountainCar
+from rlxp.envs  import Chain, SquareWorld, GridWorld, MountainCar
 
 @pytest.mark.parametrize("L", [
     2, 10

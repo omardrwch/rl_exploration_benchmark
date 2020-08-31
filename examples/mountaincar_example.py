@@ -1,4 +1,4 @@
-from rlxp.env import MountainCar 
+from rlxp.envs import MountainCar 
 from rlxp.rendering import render_env2d
 
 env = MountainCar()

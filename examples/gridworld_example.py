@@ -1,4 +1,4 @@
-from rlxp.env  import GridWorld
+from rlxp.envs  import GridWorld
 from rlxp.rendering import render_env2d
 
 env = GridWorld(7, 10, walls=((2,2), (3,3)))
