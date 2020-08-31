@@ -1,7 +1,7 @@
 import pytest
 import numpy as np 
 from rlxp.interface import FiniteMDP 
-from rlxp.envs  import Chain, SquareWorld, GridWorld, MountainCar
+from rlxp.envs  import Chain, SquareWorld, GridWorld, MountainCar, ChasingBlobs
 
 @pytest.mark.parametrize("L", [
     2, 10
@@ -34,6 +34,15 @@ def test_mountaincar():
     env.step(0)
     env.step(1)
     env.step(2)
+    assert env.reward_range == (0, 1)
+
+
+def test_chasingblobs():
+    env = ChasingBlobs(5)
+    env.step(0)
+    env.step(1)
+    env.step(2)
+    env.step(3)
     assert env.reward_range == (0, 1)
 
 

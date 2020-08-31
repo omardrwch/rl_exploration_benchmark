@@ -80,12 +80,18 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
 
         # save state for rendering
         if self.is_render_enabled():
-            self.append_state_for_rendering(self.state.copy())
+            state_with_render_info = (self.state.copy(), self._reward_multipliers[self._current_configuration])
+            self.append_state_for_rendering(state_with_render_info)
 
         # done and reward
         done = False 
-        reward = np.exp( -0.5*( np.power(self.state[0]-self._goal_x, 2)  
-                                +   np.power(self.state[1]-self._goal_y, 2) ) /
+        reward = 0
+        for ii in range(4):
+            blob_ii_x = self._blob_x_vec[ii]
+            blob_ii_y = self._blob_y_vec[ii]
+            c_ii      = self._reward_multipliers[self._current_configuration][ii]
+            reward   +=  np.exp( -0.5*( np.power(self.state[0]-blob_ii_x, 2)  
+                                +   np.power(self.state[1]-blob_ii_y, 2) ) /
                                 np.power(self._reward_smoothness, 2) )
         reward += self._reward_noise_stdev*np.random.randn() 
 
@@ -109,6 +115,12 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
         return self.state, reward, done, {}
     
     def reset(self, state=None):
+        # update configuration
+        self._current_episode += 1 
+        if (self._current_episode > 0 and (self._current_episode % self._period == 0)):
+            self._current_configuration += 1 
+            self._current_configuration = self._current_configuration % self._n_configurations
+        # set state
         if state is not None:
             self.state = state 
         else:
@@ -118,20 +130,14 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
 
     def get_background(self):
         bg = Scene()
-
-        flag = GeometricPrimitive("GL_TRIANGLES")
-        flag.set_color((0.0, 0.5 ,0.0))
-        flag.add_vertex((self._goal_x, self._goal_y))
-        flag.add_vertex((self._goal_x+0.025, self._goal_y+0.075))
-        flag.add_vertex((self._goal_x-0.025, self._goal_y+0.075))
-
-        bg.add_shape(flag)
-
         return bg
 
-    def get_scene(self, state):
+    def get_scene(self, state_with_render_info):
         scene = Scene() 
 
+        state, reward_multipliers = state_with_render_info 
+        
+        # agent
         agent = GeometricPrimitive("GL_QUADS")
         agent.set_color((0.75, 0.0, 0.5))
         size = 0.025
@@ -146,6 +152,24 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
         agent.add_vertex((x+size, y-size/4.0))
         agent.add_vertex((x+size, y+size/4.0))
         agent.add_vertex((x-size, y+size/4.0))
-        
+
         scene.add_shape(agent)
+
+        # rewards 
+        for ii in range(4):
+            blob_ii_x = self._blob_x_vec[ii]
+            blob_ii_y = self._blob_y_vec[ii]
+            c_ii      = reward_multipliers[ii]
+
+            if c_ii == 0:
+                continue
+        
+            
+            flag = GeometricPrimitive("GL_TRIANGLES")
+            flag.set_color((0.0, c_ii ,0.0))
+            flag.add_vertex((blob_ii_x, blob_ii_y))
+            flag.add_vertex((blob_ii_x+0.025, blob_ii_y+0.075))
+            flag.add_vertex((blob_ii_x-0.025, blob_ii_y+0.075))
+            scene.add_shape(flag)
+
         return scene 
