@@ -2,10 +2,7 @@
 Parametric family of environments whose state space is a unit sphere according to the p-norm in R^d.
 
 Note: 
-    Implemented for p \in {2, infinity}. 
-
-To do:
-    Implement for p = 1
+    The projection function is only a projection for p \in {2, infinity}. 
 
 ----------------------------------------------------------------------
 State space:
@@ -38,7 +35,7 @@ Initial state:
 ----------------------------------------------------------------------
 
 Parameters:
-    * p (parameter of the p-norm), p \in {1, 2, infinity}
+    * p (parameter of the p-norm)
     * List of actions {u_1, ..., u_m}, each action u_i is a d'-dimensional array
     * List of reward amplitudes: {b_1, ..., b_n}
     * List of reward smoothness: {c_1, ..., c_n}
@@ -62,11 +59,12 @@ def projection_to_pball(x, p):
     Solve the problem:
         min_z  ||x-z||_2^2 
         s.t.   ||z||_p  <= 1
-    for p = 2 or p = np.inf
-    """
-    if p not in [2, np.inf]:
-        raise NotImplementedError("projection only implemented for p=2 and p=np.inf")
+    for p = 2 or p = np.inf 
 
+    If p is not 2 or np.inf, it returns x/norm_p(x) if norm_p(x) > 1
+
+    WARNING: projection_to_pball is not actually a projection for p!=2 or p=!np.inf
+    """
     if np.linalg.norm(x, ord=p) <= 1.0:
         return x
 
@@ -77,6 +75,9 @@ def projection_to_pball(x, p):
     if p == np.inf:
         z = np.minimum(1.0, np.maximum(x, -1.0))
         return z 
+    
+    # below it is not a projection
+    return x/np.linalg.norm(x, ord=p)
         
 
 class PBall(interface.Env):
@@ -91,8 +92,9 @@ class PBall(interface.Env):
                  sigma,
                  sigma_init,
                  mu_init):
+        assert p >= 1, "PBall requires p>=1"
         if p not in [2, np.inf]:
-            raise NotImplementedError("PBall environment only implemented for p=2 and p=np.inf")
+            print("WARNING: for p!=2 or p!=np.inf, PBall does not make true projections onto the lp ball.")
         self.p                 = p 
         self.d, self.dp        = B.shape   # d and d'
         self.m                 = len(action_list)
@@ -165,25 +167,32 @@ class PBall(interface.Env):
     def get_transitions_lipschitz_constant(self):
         """
         note: considers a fixed action, returns Lipschitz constant w.r.t. to states.
-        """
-        if self.p == 2:
-            return np.linalg.norm(self.A, ord = 2)
-        if self.p == np.inf:
-            return np.linalg.norm(self.A, ord = 1)
 
+        If p!=1, p!=2 or p!=np.inf, returns an upper bound on the induced norm
+        """
+        if self.p == 1:
+            order = np.inf 
+        else:
+            order = self.p / (self.p - 1.0)
+        
+        if order in [1, 2]:
+            return np.linalg.norm(self.A, ord = order)
+
+        # If p!=1, p!=2 or p!=np.inf, return upper bound on the induced norm.
+        return np.power(self.d, 1.0/self.p) * np.linalg.norm(self.A, ord = np.inf)
 
         
 
 class PBall2D(PBall, RenderInterface2D):
     def __init__(self,
                  p = 2, 
-                 action_list = [  0.1*np.array([1, 0]),
-                                 -0.1*np.array([1, 0]),
-                                  0.1*np.array([0, 1]),
-                                 -0.1*np.array([0, 1])],
+                 action_list = [  0.05*np.array([1, 0]),
+                                 -0.05*np.array([1, 0]),
+                                  0.05*np.array([0, 1]),
+                                 -0.05*np.array([0, 1])],
                  reward_amplitudes = np.array([1.0]),
                  reward_smoothness = np.array([0.2]),
-                 reward_centers    = [np.array([0.6, 0.6])],
+                 reward_centers    = [np.array([0.75, 0.0])],
                  A = np.eye(2), 
                  B = np.eye(2),
                  sigma = 0.01,
@@ -223,7 +232,7 @@ class PBall2D(PBall, RenderInterface2D):
                 yy = -1 + jj*eps_y 
                 center = np.array([xx+eps_x/2, yy+eps_y/2])
 
-                cc = np.linalg.norm( center, ord=self.p) <= 1
+                cc = np.linalg.norm( center, ord=self.p) <= 0.999
                 reward = self.compute_reward_at(center)
 
                 sqr = GeometricPrimitive("GL_QUADS")
@@ -257,7 +266,8 @@ class PBall2D(PBall, RenderInterface2D):
         return scene 
 
 if __name__=='__main__':
-    env = PBall2D(p=np.inf)
+    env = PBall2D(p=1.5)
+    print(env.get_transitions_lipschitz_constant())
     env.enable_rendering()
 
     for ii in range(100):
