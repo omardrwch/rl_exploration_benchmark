@@ -1,10 +1,5 @@
 numpy
-matplotlib
-pandas
-joblib
 gym
-numba
-seaborn
 pytest
 PyOpenGL
 PyOpenGL_accelerate

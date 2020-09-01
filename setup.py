@@ -11,5 +11,5 @@ setup(name='rlxp',
       author_email='',
       license='MIT',
       packages=packages,
-      install_requires=['numpy', 'gym', 'pytest'],
+      install_requires=['numpy', 'gym', 'pytest', 'PyOpenGL', 'PyOpenGL_accelerate', 'pygame'],
       zip_safe=False)
