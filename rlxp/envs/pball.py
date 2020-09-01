@@ -191,7 +191,7 @@ class PBall2D(PBall, RenderInterface2D):
                                   0.05*np.array([0, 1]),
                                  -0.05*np.array([0, 1])],
                  reward_amplitudes = np.array([1.0]),
-                 reward_smoothness = np.array([0.2]),
+                 reward_smoothness = np.array([0.25]),
                  reward_centers    = [np.array([0.75, 0.0])],
                  A = np.eye(2), 
                  B = np.eye(2),
@@ -266,8 +266,10 @@ class PBall2D(PBall, RenderInterface2D):
         return scene 
 
 if __name__=='__main__':
-    env = PBall2D(p=1.5)
+    env = PBall2D(p=5)
     print(env.get_transitions_lipschitz_constant())
+    print(env.get_reward_lipschitz_constant())
+
     env.enable_rendering()
 
     for ii in range(100):
