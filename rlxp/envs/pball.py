@@ -269,8 +269,8 @@ class SimplePBallND(PBall):
     def __init__(self,
                  p   = 2, 
                  dim = 2,
-                 action_amplitude = 0.5,
-                 r_smoothness = 0.5,
+                 action_amplitude = 0.05,
+                 r_smoothness = 0.25,
                  sigma = 0.01,
                  sigma_init = 0.001,
                  mu_init = None
