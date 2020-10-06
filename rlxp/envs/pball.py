@@ -1,53 +1,3 @@
-"""
-Parametric family of environments whose state space is a unit sphere according to the p-norm in R^d.
-
-Note: 
-    The projection function is only a projection for p \in {2, infinity}. 
-
-----------------------------------------------------------------------
-State space:
-    x \in R^d: norm_p (x) <= 1
-
-    implemented as gym.spaces.Box representing [0, 1]^d
-----------------------------------------------------------------------
-Action space:
-    {u_1, ..., u_m} such that u_i \in R^d'  for i = 1, ..., m
-
-    implemented as gym.spaces.Discrete(m)
-----------------------------------------------------------------------
-Reward function (independent of the actions):
-    r(x) = \sum_{i=1}^n  b_i  \max( 0,  1 - norm_p( x - x_i )/c_i )
-
-    requirements:
-        c_i >= 0
-        b_i \in [0, 1]
-----------------------------------------------------------------------
-Transitions:
-    x_{t+1} = A x_t + B u_t + N
-
-    where 
-          A: square matrix of size d
-          B: matrix of size (d, d')
-          N: d-dimensional Gaussian noise with zero mean and covariance matrix sigma*I 
-----------------------------------------------------------------------
-Initial state:
-    d-dimensional Gaussian with mean mu_init and covariance matrix sigma_init*I
-----------------------------------------------------------------------
-
-Parameters:
-    * p (parameter of the p-norm)
-    * List of actions {u_1, ..., u_m}, each action u_i is a d'-dimensional array
-    * List of reward amplitudes: {b_1, ..., b_n}
-    * List of reward smoothness: {c_1, ..., c_n}
-    * List of reward centers:    {x_1, ..., x_n}
-    * Array A of size (d, d)
-    * Array B of size (d, d')
-    * Transition noise sigma
-    * Initial state noise sigma_init
-
-Default parameters are provided for a 2D environment, PBall2D.
-"""
-
 import numpy as np 
 import gym
 import rlxp.interface as interface 
@@ -81,6 +31,56 @@ def projection_to_pball(x, p):
         
 
 class PBall(interface.Env):
+    """
+    Parametric family of environments whose state space is a unit sphere according to the p-norm in R^d.
+
+    Note: 
+        The projection function is only a projection for p in {2, infinity}. 
+
+    ----------------------------------------------------------------------
+    State space:
+        x in R^d: norm_p (x) <= 1
+
+        implemented as gym.spaces.Box representing [0, 1]^d
+    ----------------------------------------------------------------------
+    Action space:
+        {u_1, ..., u_m} such that u_i in R^d'  for i = 1, ..., m
+
+        implemented as gym.spaces.Discrete(m)
+    ----------------------------------------------------------------------
+    Reward function (independent of the actions):
+        r(x) = sum_{i=1}^n  b_i  max( 0,  1 - norm_p( x - x_i )/c_i )
+
+        requirements:
+            c_i >= 0
+            b_i in [0, 1]
+    ----------------------------------------------------------------------
+    Transitions:
+        x_{t+1} = A x_t + B u_t + N
+
+        where 
+            A: square matrix of size d
+            B: matrix of size (d, d')
+            N: d-dimensional Gaussian noise with zero mean and covariance matrix sigma*I 
+    ----------------------------------------------------------------------
+    Initial state:
+        d-dimensional Gaussian with mean mu_init and covariance matrix sigma_init*I
+    ----------------------------------------------------------------------
+
+    Parameters:
+        * p (parameter of the p-norm)
+        * List of actions {u_1, ..., u_m}, each action u_i is a d'-dimensional array
+        * List of reward amplitudes: {b_1, ..., b_n}
+        * List of reward smoothness: {c_1, ..., c_n}
+        * List of reward centers:    {x_1, ..., x_n}
+        * Array A of size (d, d)
+        * Array B of size (d, d')
+        * Transition noise sigma
+        * Initial state noise sigma_init
+
+    Default parameters are provided for a 2D environment, PBall2D
+    """
+
     def __init__(self,
                  p, 
                  action_list,
@@ -265,8 +265,47 @@ class PBall2D(PBall, RenderInterface2D):
         scene.add_shape(agent)
         return scene 
 
+class SimplePBallND(PBall):
+    def __init__(self,
+                 p   = 2, 
+                 dim = 2,
+                 action_amplitude = 0.5,
+                 r_smoothness = 0.5,
+                 sigma = 0.01,
+                 sigma_init = 0.001,
+                 mu_init = None
+                 ):
+        # Action list 
+        action_list = []
+        for dd in range(dim):
+            aux     = np.zeros(dim)
+            aux[dd] = action_amplitude
+            action_list.append(   aux)
+            action_list.append(-1*aux)
+
+        # Rewards 
+        reward_amplitudes = np.array([1.0])
+        reward_smoothness = np.array([r_smoothness])
+        reward_centers       = [np.zeros(dim)]
+        reward_centers[0][0] = 0.8
+
+        # Transitions 
+        A = np.eye(dim)
+        B = np.eye(dim)
+
+        # Initial position
+        if mu_init is None :
+            mu_init = np.zeros(dim)
+
+        # Initialize PBall
+        PBall.__init__(self, p,  action_list, reward_amplitudes,reward_smoothness,
+                            reward_centers, A, B, sigma, sigma_init, mu_init)
+
+
+
+
 if __name__=='__main__':
-    env = PBall2D(p=5)
+    env = PBall2D(p=2)
     print(env.get_transitions_lipschitz_constant())
     print(env.get_reward_lipschitz_constant())
 
