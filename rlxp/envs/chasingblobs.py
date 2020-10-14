@@ -11,7 +11,7 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
     displacement of (-d, 0), (d, 0), (0, -d) and (0, d), respectively.
          
     The immediate reward received in each state s = (s_x, s_y) is, for any action a,
-        r(s, a) =  \sum_i c_i *  exp( - ((s_x-blob_i_x)^2 + (s_y-blob_i_y)^2)/(2*reward_smoothness^2)  )
+        r(s, a) =  sum_i c_i *  exp( - ((s_x-blob_i_x)^2 + (s_y-blob_i_y)^2)/(2*reward_smoothness^2)  )
     
     Every <period> episodes there is a change in the blob configuration, where <period> is a parameter.
     """
@@ -112,7 +112,7 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
         self.state[1] = min(max(self.state[1], 0.0), 1.0)
 
         
-        return self.state, reward, done, {}
+        return self.state.copy(), reward, done, {}
     
     def reset(self, state=None):
         # update configuration
@@ -125,7 +125,7 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
             self.state = state 
         else:
             self.state = np.array([self._start_x, self._start_y])
-        return self.state 
+        return self.state.copy()
         
 
     def get_background(self):

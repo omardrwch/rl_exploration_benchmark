@@ -83,14 +83,14 @@ class SquareWorld(interface.Env, RenderInterface2D):
         self.state[1] = min(max(self.state[1], 0.0), 1.0)
 
         
-        return self.state, reward, done, {}
+        return self.state.copy(), reward, done, {}
     
     def reset(self, state=None):
         if state is not None:
             self.state = state 
         else:
             self.state = np.array([self._start_x, self._start_y])
-        return self.state 
+        return self.state.copy()
         
 
     def get_background(self):

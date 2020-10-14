@@ -131,7 +131,7 @@ class PBall(interface.Env):
             self.state = self.mu_init + self.sigma_init*np.random.randn(self.d)
         # projection to unit ball
         self.state = projection_to_pball(self.state, self.p)
-        return self.state 
+        return self.state.copy()
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -148,7 +148,7 @@ class PBall(interface.Env):
         # update state
         self.state = next_s 
 
-        return self.state, reward, done, {}
+        return self.state.copy(), reward, done, {}
     
     def compute_reward_at(self, x):
         reward = 0
