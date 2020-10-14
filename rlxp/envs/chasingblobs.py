@@ -90,9 +90,9 @@ class ChasingBlobs(interface.Env, RenderInterface2D):
             blob_ii_x = self._blob_x_vec[ii]
             blob_ii_y = self._blob_y_vec[ii]
             c_ii      = self._reward_multipliers[self._current_configuration][ii]
-            reward   +=  np.exp( -0.5*( np.power(self.state[0]-blob_ii_x, 2)  
-                                +   np.power(self.state[1]-blob_ii_y, 2) ) /
-                                np.power(self._reward_smoothness, 2) )
+            reward   +=  c_ii*np.exp( -0.5*( np.power(self.state[0]-blob_ii_x, 2)  
+                                     +   np.power(self.state[1]-blob_ii_y, 2) ) /
+                                     np.power(self._reward_smoothness, 2) )
         reward += self._reward_noise_stdev*np.random.randn() 
 
         # next state
